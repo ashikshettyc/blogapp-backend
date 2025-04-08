@@ -1,27 +1,20 @@
-FROM node:18-slim
+# Use Bun official image
+FROM oven/bun:1.0.29 as build
 
 # Set working directory
 WORKDIR /app
 
-# Install OS-level dependencies required for sharp and SWC
-RUN apt-get update && apt-get install -y \
-    python3 make g++ libc6-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the code
+# Copy all files
 COPY . .
 
-# Build admin panel
-RUN npm run build
+# Install dependencies using Bun
+RUN bun install
 
-# Expose default port
+# Build admin panel
+RUN bun run build
+
+# Expose default Strapi port
 EXPOSE 1337
 
-# Start the app
-CMD ["npm", "start"]
+# Start Strapi server
+CMD ["bun", "start"]
