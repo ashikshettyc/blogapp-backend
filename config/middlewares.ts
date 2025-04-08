@@ -5,7 +5,7 @@ export default [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['https://your-frontend-domain.com', 'http://localhost:3001'], // 👈 add your domains here
+      origin: ['https://blogapp-nine-sepia.vercel.app', 'http://localhost:3001', 'http://localhost:3000'], // 👈 add your domains here
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       headers: '*',
       credentials: true, // if using cookies/sessions
