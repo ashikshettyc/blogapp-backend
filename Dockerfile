@@ -1,23 +1,25 @@
-# Dockerfile using Bun
-FROM oven/bun:1.0
+# Use official Bun image
+FROM oven/bun:1.0.27 as base
 
 # Set working directory
 WORKDIR /app
 
-# Copy dependencies
-COPY bun.lockb package.json ./
-
-# Install dependencies
-RUN bun install --production
-
-# Copy source
+# Copy everything
 COPY . .
 
-# Build Strapi Admin panel
+# Install sharp with Linux-compatible flags
+RUN apk add --no-cache --virtual .gyp python3 make g++ \
+  && bun add sharp --platform=linux --arch=x64 \
+  && apk del .gyp
+
+# Install other dependencies
+RUN bun install
+
+# Build Strapi admin panel (optional if you're not using build)
 RUN bun run build
 
-# Expose the port Strapi will run on
+# Expose the port Strapi uses
 EXPOSE 1337
 
-# Start the server
-CMD ["bun", "start"]
+# Start the app
+CMD ["bun", "run", "start"]
