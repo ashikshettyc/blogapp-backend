@@ -1,21 +1,27 @@
-# Use official Node.js base image (LTS recommended)
-FROM node:18-alpine
+FROM node:18-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Install OS-level dependencies required for sharp and SWC
+RUN apt-get update && apt-get install -y \
+    python3 make g++ libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy the rest of the application
+# Copy the rest of the code
 COPY . .
 
-# Build the admin panel
+# Build admin panel
 RUN npm run build
 
-# Expose default Strapi port
+# Expose default port
 EXPOSE 1337
 
-# Start the Strapi server
+# Start the app
 CMD ["npm", "start"]
