@@ -1,20 +1,26 @@
-# Use Bun official image
-FROM oven/bun:1.0.29 as build
+# Use Linux Node base image
+FROM node:20-alpine
 
-# Set working directory
+# Install build tools for native modules
+RUN apk add --no-cache python3 make g++ libc6-compat
+
+# Set working dir
 WORKDIR /app
 
-# Copy all files
+# Copy only package.json + lock first for layer caching
+COPY package*.json ./
+
+# Force rebuild sharp for Linux (this is KEY 🔑)
+RUN npm install --platform=linux --arch=x64
+
+# Now copy rest of project
 COPY . .
 
-# Install dependencies using Bun
-RUN bun install
+# Build Strapi
+RUN npm run build
 
-# Build admin panel
-RUN bun run build
-
-# Expose default Strapi port
+# Expose port
 EXPOSE 1337
 
-# Start Strapi server
-CMD ["bun", "start"]
+# Start
+CMD ["npm", "start"]
