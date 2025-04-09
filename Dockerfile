@@ -1,26 +1,24 @@
-# Use Linux Node base image
 FROM node:20-alpine
 
-# Install build tools for native modules
+# Needed for native modules
 RUN apk add --no-cache python3 make g++ libc6-compat
 
-# Set working dir
+# Set workdir
 WORKDIR /app
 
-# Copy only package.json + lock first for layer caching
-COPY package*.json ./
-
-# Force rebuild sharp for Linux (this is KEY 🔑)
-RUN npm install --platform=linux --arch=x64
-
-# Now copy rest of project
+# Copy files
 COPY . .
 
-# Build Strapi
+# Install deps
+RUN npm install
+
+# Important: Rebuild native modules like @swc/core
+RUN npm rebuild @swc/core
+
+# Build the admin
 RUN npm run build
 
 # Expose port
 EXPOSE 1337
 
-# Start
 CMD ["npm", "start"]
