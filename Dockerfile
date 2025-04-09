@@ -1,24 +1,19 @@
-FROM node:20-alpine
+# Use Debian-based image for better native support
+FROM node:20-slim
 
-# Needed for native modules
-RUN apk add --no-cache python3 make g++ libc6-compat
+# Install dependencies for native modules
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
-# Set workdir
 WORKDIR /app
 
-# Copy files
-COPY . .
-
-# Install deps
+COPY package*.json ./
 RUN npm install
 
-# Important: Rebuild native modules like @swc/core
-RUN npm rebuild @swc/core
+COPY . .
 
-# Build the admin
+# Build admin panel
 RUN npm run build
 
-# Expose port
 EXPOSE 1337
 
 CMD ["npm", "start"]
